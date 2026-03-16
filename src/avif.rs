@@ -74,16 +74,17 @@ fn decode_av1_to_rgba(av1_data: &[u8]) -> Result<(Vec<u8>, u32, u32), ConvertErr
         settings.n_threads = 0; // auto-detect
 
         let mut ctx: Option<Dav1dContext> = None;
-        let result =
-            dav1d_open(std::ptr::NonNull::new(&mut ctx), std::ptr::NonNull::new(&mut settings));
+        let result = dav1d_open(
+            std::ptr::NonNull::new(&mut ctx),
+            std::ptr::NonNull::new(&mut settings),
+        );
         if result.0 != 0 {
             return Err(ConvertError::DecodingError(
                 "rav1d 디코더 초기화 실패".into(),
             ));
         }
-        let ctx_val = ctx.ok_or_else(|| {
-            ConvertError::DecodingError("rav1d 컨텍스트 생성 실패".into())
-        })?;
+        let ctx_val =
+            ctx.ok_or_else(|| ConvertError::DecodingError("rav1d 컨텍스트 생성 실패".into()))?;
 
         // 데이터 전송
         let mut dav1d_data = Dav1dData::default();
@@ -97,19 +98,14 @@ fn decode_av1_to_rgba(av1_data: &[u8]) -> Result<(Vec<u8>, u32, u32), ConvertErr
         }
         std::ptr::copy_nonoverlapping(av1_data.as_ptr(), buf_ptr, av1_data.len());
 
-        let _send_result = dav1d_send_data(
-            Some(ctx_val),
-            std::ptr::NonNull::new(&mut dav1d_data),
-        );
+        let _send_result = dav1d_send_data(Some(ctx_val), std::ptr::NonNull::new(&mut dav1d_data));
 
         // 디코딩된 프레임 가져오기
         let mut pic: Dav1dPicture = std::mem::zeroed();
-        let get_result =
-            dav1d_get_picture(Some(ctx_val), std::ptr::NonNull::new(&mut pic));
+        let get_result = dav1d_get_picture(Some(ctx_val), std::ptr::NonNull::new(&mut pic));
         if get_result.0 != 0 {
             // 재시도
-            let get_result2 =
-                dav1d_get_picture(Some(ctx_val), std::ptr::NonNull::new(&mut pic));
+            let get_result2 = dav1d_get_picture(Some(ctx_val), std::ptr::NonNull::new(&mut pic));
             if get_result2.0 != 0 {
                 dav1d_close(std::ptr::NonNull::new(&mut ctx));
                 return Err(ConvertError::DecodingError(format!(
@@ -143,16 +139,17 @@ fn decode_av1_to_gray(av1_data: &[u8]) -> Result<(Vec<u8>, u32, u32), ConvertErr
         settings.n_threads = 0;
 
         let mut ctx: Option<Dav1dContext> = None;
-        let result =
-            dav1d_open(std::ptr::NonNull::new(&mut ctx), std::ptr::NonNull::new(&mut settings));
+        let result = dav1d_open(
+            std::ptr::NonNull::new(&mut ctx),
+            std::ptr::NonNull::new(&mut settings),
+        );
         if result.0 != 0 {
             return Err(ConvertError::DecodingError(
                 "rav1d 알파 디코더 초기화 실패".into(),
             ));
         }
-        let ctx_val = ctx.ok_or_else(|| {
-            ConvertError::DecodingError("rav1d 알파 컨텍스트 생성 실패".into())
-        })?;
+        let ctx_val =
+            ctx.ok_or_else(|| ConvertError::DecodingError("rav1d 알파 컨텍스트 생성 실패".into()))?;
 
         let mut dav1d_data = Dav1dData::default();
         let buf_ptr: *mut u8 =
@@ -165,17 +162,12 @@ fn decode_av1_to_gray(av1_data: &[u8]) -> Result<(Vec<u8>, u32, u32), ConvertErr
         }
         std::ptr::copy_nonoverlapping(av1_data.as_ptr(), buf_ptr, av1_data.len());
 
-        let _ = dav1d_send_data(
-            Some(ctx_val),
-            std::ptr::NonNull::new(&mut dav1d_data),
-        );
+        let _ = dav1d_send_data(Some(ctx_val), std::ptr::NonNull::new(&mut dav1d_data));
 
         let mut pic: Dav1dPicture = std::mem::zeroed();
-        let get_result =
-            dav1d_get_picture(Some(ctx_val), std::ptr::NonNull::new(&mut pic));
+        let get_result = dav1d_get_picture(Some(ctx_val), std::ptr::NonNull::new(&mut pic));
         if get_result.0 != 0 {
-            let get_result2 =
-                dav1d_get_picture(Some(ctx_val), std::ptr::NonNull::new(&mut pic));
+            let get_result2 = dav1d_get_picture(Some(ctx_val), std::ptr::NonNull::new(&mut pic));
             if get_result2.0 != 0 {
                 dav1d_close(std::ptr::NonNull::new(&mut ctx));
                 return Err(ConvertError::DecodingError(
@@ -197,7 +189,6 @@ fn decode_av1_to_gray(av1_data: &[u8]) -> Result<(Vec<u8>, u32, u32), ConvertErr
     }
 }
 
-
 /// Dav1dPicture에서 YUV 데이터를 RGBA로 변환한다.
 unsafe fn yuv_picture_to_rgba(
     pic: &Dav1dPicture,
@@ -206,8 +197,8 @@ unsafe fn yuv_picture_to_rgba(
     bpc: std::ffi::c_int,
     layout: rav1d::include::dav1d::headers::Dav1dPixelLayout,
 ) -> Result<Vec<u8>, ConvertError> {
-    let y_ptr = pic.data[0]
-        .ok_or_else(|| ConvertError::DecodingError("Y 평면 데이터 없음".into()))?;
+    let y_ptr =
+        pic.data[0].ok_or_else(|| ConvertError::DecodingError("Y 평면 데이터 없음".into()))?;
     let u_ptr = pic.data[1];
     let v_ptr = pic.data[2];
 
@@ -221,9 +212,9 @@ unsafe fn yuv_picture_to_rgba(
     // chroma subsampling 결정
     let (ss_hor, ss_ver) = match layout {
         DAV1D_PIXEL_LAYOUT_I420 => (1usize, 1usize), // 4:2:0
-        DAV1D_PIXEL_LAYOUT_I422 => (1, 0),            // 4:2:2
-        DAV1D_PIXEL_LAYOUT_I444 => (0, 0),            // 4:4:4
-        DAV1D_PIXEL_LAYOUT_I400 | _ => (0, 0),        // monochrome
+        DAV1D_PIXEL_LAYOUT_I422 => (1, 0),           // 4:2:2
+        DAV1D_PIXEL_LAYOUT_I444 => (0, 0),           // 4:4:4
+        DAV1D_PIXEL_LAYOUT_I400 | _ => (0, 0),       // monochrome
     };
 
     if bpc <= 8 {
@@ -300,10 +291,24 @@ unsafe fn yuv_picture_to_rgba(
                     }
                 }
             } else {
-                fill_monochrome_16bit(y_ptr.as_ptr() as *const u16, y_stride / 2, shift, w, h, &mut rgba);
+                fill_monochrome_16bit(
+                    y_ptr.as_ptr() as *const u16,
+                    y_stride / 2,
+                    shift,
+                    w,
+                    h,
+                    &mut rgba,
+                );
             }
         } else {
-            fill_monochrome_16bit(y_ptr.as_ptr() as *const u16, y_stride / 2, shift, w, h, &mut rgba);
+            fill_monochrome_16bit(
+                y_ptr.as_ptr() as *const u16,
+                y_stride / 2,
+                shift,
+                w,
+                h,
+                &mut rgba,
+            );
         }
     }
 
@@ -358,8 +363,8 @@ unsafe fn extract_y_plane(
     height: u32,
     bpc: std::ffi::c_int,
 ) -> Result<Vec<u8>, ConvertError> {
-    let y_ptr = pic.data[0]
-        .ok_or_else(|| ConvertError::DecodingError("알파 Y 평면 데이터 없음".into()))?;
+    let y_ptr =
+        pic.data[0].ok_or_else(|| ConvertError::DecodingError("알파 Y 평면 데이터 없음".into()))?;
 
     let y_stride = pic.stride[0];
     let w = width as usize;
@@ -431,12 +436,7 @@ mod tests {
     fn create_test_image(w: u32, h: u32) -> DynamicImage {
         let mut img = RgbaImage::new(w, h);
         for (x, y, pixel) in img.enumerate_pixels_mut() {
-            *pixel = image::Rgba([
-                (x % 256) as u8,
-                (y % 256) as u8,
-                ((x + y) % 256) as u8,
-                255,
-            ]);
+            *pixel = image::Rgba([(x % 256) as u8, (y % 256) as u8, ((x + y) % 256) as u8, 255]);
         }
         DynamicImage::ImageRgba8(img)
     }

@@ -3,7 +3,10 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum ConvertError {
     #[error("지원되지 않는 입력 포맷: {extension}. 지원 포맷: {supported}")]
-    UnsupportedInputFormat { extension: String, supported: String },
+    UnsupportedInputFormat {
+        extension: String,
+        supported: String,
+    },
 
     #[error("지원되지 않는 출력 포맷: {format}. 지원 포맷: {supported}")]
     UnsupportedOutputFormat { format: String, supported: String },
@@ -53,8 +56,17 @@ pub enum ConvertError {
     #[error("SVG 처리 실패: {0}")]
     SvgError(String),
 
-    #[error("크롭 영역이 이미지 범위를 초과: x={x}, y={y}, w={w}, h={h}, 이미지 크기: {img_w}x{img_h}")]
-    CropOutOfBounds { x: u32, y: u32, w: u32, h: u32, img_w: u32, img_h: u32 },
+    #[error(
+        "크롭 영역이 이미지 범위를 초과: x={x}, y={y}, w={w}, h={h}, 이미지 크기: {img_w}x{img_h}"
+    )]
+    CropOutOfBounds {
+        x: u32,
+        y: u32,
+        w: u32,
+        h: u32,
+        img_w: u32,
+        img_h: u32,
+    },
 
     #[error("크롭 옵션 형식 오류: '{input}'. 올바른 형식: x,y,w,h")]
     InvalidCropFormat { input: String },

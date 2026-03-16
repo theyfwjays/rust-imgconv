@@ -114,13 +114,12 @@ fn detect_input_format(input: &Path) -> Result<ImageFormat, ConvertError> {
         }
     }
 
-    let ext = input
-        .extension()
-        .and_then(|e| e.to_str())
-        .ok_or_else(|| ConvertError::UnsupportedInputFormat {
+    let ext = input.extension().and_then(|e| e.to_str()).ok_or_else(|| {
+        ConvertError::UnsupportedInputFormat {
             extension: input.display().to_string(),
             supported: ImageFormat::supported_extensions().join(", "),
-        })?;
+        }
+    })?;
     ImageFormat::from_extension(ext)
 }
 
@@ -137,7 +136,10 @@ fn build_output_path(
 
     let dir = match output_dir {
         Some(d) => d.to_path_buf(),
-        None => input.parent().unwrap_or_else(|| Path::new(".")).to_path_buf(),
+        None => input
+            .parent()
+            .unwrap_or_else(|| Path::new("."))
+            .to_path_buf(),
     };
 
     dir.join(format!("{}.{}", stem.to_string_lossy(), ext))
@@ -473,14 +475,12 @@ pub fn convert_file(
 
     // 모든 포맷이 실패한 경우 에러 반환
     if results.is_empty() {
-        return Err(last_error.unwrap_or_else(|| {
-            ConvertError::EncodingError("변환할 대상 포맷이 없습니다".into())
-        }));
+        return Err(last_error
+            .unwrap_or_else(|| ConvertError::EncodingError("변환할 대상 포맷이 없습니다".into())));
     }
 
     Ok(results)
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -491,12 +491,7 @@ mod tests {
     fn create_test_png(path: &Path, w: u32, h: u32) {
         let mut img = RgbaImage::new(w, h);
         for (x, y, pixel) in img.enumerate_pixels_mut() {
-            *pixel = image::Rgba([
-                (x % 256) as u8,
-                (y % 256) as u8,
-                ((x + y) % 256) as u8,
-                255,
-            ]);
+            *pixel = image::Rgba([(x % 256) as u8, (y % 256) as u8, ((x + y) % 256) as u8, 255]);
         }
         let dyn_img = DynamicImage::ImageRgba8(img);
         dyn_img.save(path).unwrap();
@@ -569,11 +564,17 @@ mod tests {
 
         assert_eq!(results.len(), 2);
 
-        let bmp_result = results.iter().find(|r| r.output_format == ImageFormat::Bmp).unwrap();
+        let bmp_result = results
+            .iter()
+            .find(|r| r.output_format == ImageFormat::Bmp)
+            .unwrap();
         assert!(bmp_result.output_path.exists());
         assert_eq!(bmp_result.output_path.file_name().unwrap(), "multi.bmp");
 
-        let tga_result = results.iter().find(|r| r.output_format == ImageFormat::Tga).unwrap();
+        let tga_result = results
+            .iter()
+            .find(|r| r.output_format == ImageFormat::Tga)
+            .unwrap();
         assert!(tga_result.output_path.exists());
         assert_eq!(tga_result.output_path.file_name().unwrap(), "multi.tga");
     }
@@ -659,13 +660,19 @@ mod tests {
         assert_eq!(plans.len(), 2);
 
         // JPEG plan 확인
-        let jpeg_plan = plans.iter().find(|p| p.output_format == ImageFormat::Jpeg).unwrap();
+        let jpeg_plan = plans
+            .iter()
+            .find(|p| p.output_format == ImageFormat::Jpeg)
+            .unwrap();
         assert_eq!(jpeg_plan.input_format, ImageFormat::Png);
         assert_eq!(jpeg_plan.input_path, input);
         assert_eq!(jpeg_plan.output_path.file_name().unwrap(), "dryrun.jpg");
 
         // BMP plan 확인
-        let bmp_plan = plans.iter().find(|p| p.output_format == ImageFormat::Bmp).unwrap();
+        let bmp_plan = plans
+            .iter()
+            .find(|p| p.output_format == ImageFormat::Bmp)
+            .unwrap();
         assert_eq!(bmp_plan.input_format, ImageFormat::Png);
         assert_eq!(bmp_plan.output_path.file_name().unwrap(), "dryrun.bmp");
 
@@ -874,8 +881,6 @@ mod tests {
             assert_eq!(pixel[1], pixel[2], "G != B in grayscale output");
         }
     }
-
-
 }
 
 #[cfg(test)]
@@ -887,12 +892,7 @@ mod proptests {
     /// 테스트용 PNG 이미지를 생성하여 저장한다.
     fn create_test_png(path: &std::path::Path, w: u32, h: u32) {
         let img = RgbaImage::from_fn(w, h, |x, y| {
-            image::Rgba([
-                (x % 256) as u8,
-                (y % 256) as u8,
-                ((x + y) % 256) as u8,
-                255,
-            ])
+            image::Rgba([(x % 256) as u8, (y % 256) as u8, ((x + y) % 256) as u8, 255])
         });
         DynamicImage::ImageRgba8(img).save(path).unwrap();
     }

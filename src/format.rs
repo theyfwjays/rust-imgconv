@@ -142,8 +142,8 @@ impl ImageFormat {
     pub fn supported_extensions() -> Vec<&'static str> {
         #[allow(unused_mut)]
         let mut exts = vec![
-            "jpg", "jpeg", "png", "gif", "bmp", "tif", "tiff", "tga", "ico", "qoi",
-            "ppm", "pgm", "pbm", "pam", "exr", "hdr", "ff", "webp", "svg",
+            "jpg", "jpeg", "png", "gif", "bmp", "tif", "tiff", "tga", "ico", "qoi", "ppm", "pgm",
+            "pbm", "pam", "exr", "hdr", "ff", "webp", "svg",
         ];
         #[cfg(feature = "avif")]
         exts.push("avif");
@@ -255,13 +255,19 @@ mod tests {
         for (ext, expected_format) in extensions_and_formats {
             let format = ImageFormat::from_extension(ext)
                 .unwrap_or_else(|_| panic!("from_extension failed for '{ext}'"));
-            assert_eq!(format, *expected_format, "format mismatch for extension '{ext}'");
+            assert_eq!(
+                format, *expected_format,
+                "format mismatch for extension '{ext}'"
+            );
 
             // Round-trip: format -> extension -> from_extension should yield the same format
             let canonical_ext = format.extension();
             let round_tripped = ImageFormat::from_extension(canonical_ext)
                 .unwrap_or_else(|_| panic!("round-trip failed for '{canonical_ext}'"));
-            assert_eq!(round_tripped, format, "round-trip mismatch for '{ext}' -> '{canonical_ext}'");
+            assert_eq!(
+                round_tripped, format,
+                "round-trip mismatch for '{ext}' -> '{canonical_ext}'"
+            );
         }
     }
 
@@ -269,17 +275,32 @@ mod tests {
     /// Validates: Requirements 1.2
     #[test]
     fn from_extension_with_dot_prefix() {
-        assert_eq!(ImageFormat::from_extension(".png").unwrap(), ImageFormat::Png);
-        assert_eq!(ImageFormat::from_extension(".jpg").unwrap(), ImageFormat::Jpeg);
+        assert_eq!(
+            ImageFormat::from_extension(".png").unwrap(),
+            ImageFormat::Png
+        );
+        assert_eq!(
+            ImageFormat::from_extension(".jpg").unwrap(),
+            ImageFormat::Jpeg
+        );
     }
 
     /// 대소문자 무관하게 확장자를 인식하는지 확인
     /// Validates: Requirements 1.2
     #[test]
     fn from_extension_case_insensitive() {
-        assert_eq!(ImageFormat::from_extension("PNG").unwrap(), ImageFormat::Png);
-        assert_eq!(ImageFormat::from_extension("Jpeg").unwrap(), ImageFormat::Jpeg);
-        assert_eq!(ImageFormat::from_extension("WEBP").unwrap(), ImageFormat::WebP);
+        assert_eq!(
+            ImageFormat::from_extension("PNG").unwrap(),
+            ImageFormat::Png
+        );
+        assert_eq!(
+            ImageFormat::from_extension("Jpeg").unwrap(),
+            ImageFormat::Jpeg
+        );
+        assert_eq!(
+            ImageFormat::from_extension("WEBP").unwrap(),
+            ImageFormat::WebP
+        );
     }
 
     /// 지원되지 않는 확장자에 대한 에러 반환 테스트
@@ -356,14 +377,20 @@ mod tests {
     #[test]
     fn parse_formats_comma_separated() {
         let formats = parse_formats("png,webp,jpeg").unwrap();
-        assert_eq!(formats, vec![ImageFormat::Png, ImageFormat::WebP, ImageFormat::Jpeg]);
+        assert_eq!(
+            formats,
+            vec![ImageFormat::Png, ImageFormat::WebP, ImageFormat::Jpeg]
+        );
     }
 
     /// 공백이 포함된 쉼표 구분 문자열 파싱 테스트
     #[test]
     fn parse_formats_with_whitespace() {
         let formats = parse_formats("png , webp , jpeg").unwrap();
-        assert_eq!(formats, vec![ImageFormat::Png, ImageFormat::WebP, ImageFormat::Jpeg]);
+        assert_eq!(
+            formats,
+            vec![ImageFormat::Png, ImageFormat::WebP, ImageFormat::Jpeg]
+        );
     }
 
     /// 단일 포맷 파싱 테스트
@@ -402,11 +429,17 @@ mod tests {
         assert_eq!(parse_formats("ppm").unwrap(), vec![ImageFormat::Pnm]);
 
         // openexr 별칭
-        assert_eq!(parse_formats("openexr").unwrap(), vec![ImageFormat::OpenExr]);
+        assert_eq!(
+            parse_formats("openexr").unwrap(),
+            vec![ImageFormat::OpenExr]
+        );
         assert_eq!(parse_formats("exr").unwrap(), vec![ImageFormat::OpenExr]);
 
         // farbfeld 별칭
-        assert_eq!(parse_formats("farbfeld").unwrap(), vec![ImageFormat::Farbfeld]);
+        assert_eq!(
+            parse_formats("farbfeld").unwrap(),
+            vec![ImageFormat::Farbfeld]
+        );
         assert_eq!(parse_formats("ff").unwrap(), vec![ImageFormat::Farbfeld]);
     }
 }

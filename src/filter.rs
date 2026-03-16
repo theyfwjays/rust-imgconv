@@ -159,9 +159,15 @@ fn apply_gamma(img: &DynamicImage, gamma: f32) -> DynamicImage {
     let mut rgba = img.to_rgba8();
 
     for pixel in rgba.pixels_mut() {
-        pixel[0] = (255.0 * (pixel[0] as f32 / 255.0).powf(inv_gamma)).round().clamp(0.0, 255.0) as u8;
-        pixel[1] = (255.0 * (pixel[1] as f32 / 255.0).powf(inv_gamma)).round().clamp(0.0, 255.0) as u8;
-        pixel[2] = (255.0 * (pixel[2] as f32 / 255.0).powf(inv_gamma)).round().clamp(0.0, 255.0) as u8;
+        pixel[0] = (255.0 * (pixel[0] as f32 / 255.0).powf(inv_gamma))
+            .round()
+            .clamp(0.0, 255.0) as u8;
+        pixel[1] = (255.0 * (pixel[1] as f32 / 255.0).powf(inv_gamma))
+            .round()
+            .clamp(0.0, 255.0) as u8;
+        pixel[2] = (255.0 * (pixel[2] as f32 / 255.0).powf(inv_gamma))
+            .round()
+            .clamp(0.0, 255.0) as u8;
         // alpha channel preserved
     }
 
@@ -287,9 +293,21 @@ mod tests {
     #[test]
     fn is_none_works() {
         assert!(ColorFilterOptions::default().is_none());
-        assert!(!ColorFilterOptions { grayscale: true, ..Default::default() }.is_none());
-        assert!(!ColorFilterOptions { invert: true, ..Default::default() }.is_none());
-        assert!(!ColorFilterOptions { sepia: true, ..Default::default() }.is_none());
+        assert!(!ColorFilterOptions {
+            grayscale: true,
+            ..Default::default()
+        }
+        .is_none());
+        assert!(!ColorFilterOptions {
+            invert: true,
+            ..Default::default()
+        }
+        .is_none());
+        assert!(!ColorFilterOptions {
+            sepia: true,
+            ..Default::default()
+        }
+        .is_none());
     }
 
     #[test]
@@ -386,7 +404,6 @@ mod tests {
         assert_eq!(pixel[3], 100, "alpha should be preserved");
     }
 }
-
 
 #[cfg(test)]
 mod proptests {

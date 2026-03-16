@@ -112,9 +112,18 @@ mod tests {
 
     #[test]
     fn from_degrees_valid() {
-        assert_eq!(RotateAngle::from_degrees(90).unwrap(), RotateAngle::Rotate90);
-        assert_eq!(RotateAngle::from_degrees(180).unwrap(), RotateAngle::Rotate180);
-        assert_eq!(RotateAngle::from_degrees(270).unwrap(), RotateAngle::Rotate270);
+        assert_eq!(
+            RotateAngle::from_degrees(90).unwrap(),
+            RotateAngle::Rotate90
+        );
+        assert_eq!(
+            RotateAngle::from_degrees(180).unwrap(),
+            RotateAngle::Rotate180
+        );
+        assert_eq!(
+            RotateAngle::from_degrees(270).unwrap(),
+            RotateAngle::Rotate270
+        );
     }
 
     #[test]
@@ -126,10 +135,22 @@ mod tests {
 
     #[test]
     fn flip_direction_from_str_valid() {
-        assert_eq!(FlipDirection::parse("horizontal").unwrap(), FlipDirection::Horizontal);
-        assert_eq!(FlipDirection::parse("Horizontal").unwrap(), FlipDirection::Horizontal);
-        assert_eq!(FlipDirection::parse("h").unwrap(), FlipDirection::Horizontal);
-        assert_eq!(FlipDirection::parse("vertical").unwrap(), FlipDirection::Vertical);
+        assert_eq!(
+            FlipDirection::parse("horizontal").unwrap(),
+            FlipDirection::Horizontal
+        );
+        assert_eq!(
+            FlipDirection::parse("Horizontal").unwrap(),
+            FlipDirection::Horizontal
+        );
+        assert_eq!(
+            FlipDirection::parse("h").unwrap(),
+            FlipDirection::Horizontal
+        );
+        assert_eq!(
+            FlipDirection::parse("vertical").unwrap(),
+            FlipDirection::Vertical
+        );
         assert_eq!(FlipDirection::parse("V").unwrap(), FlipDirection::Vertical);
     }
 
@@ -143,7 +164,7 @@ mod tests {
 #[cfg(test)]
 mod proptests {
     use super::*;
-    use image::{DynamicImage, RgbaImage, Rgba};
+    use image::{DynamicImage, Rgba, RgbaImage};
     use proptest::prelude::*;
 
     fn test_image(w: u32, h: u32) -> DynamicImage {

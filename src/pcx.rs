@@ -26,19 +26,23 @@ pub fn decode_pcx(path: &Path) -> Result<DynamicImage, ConvertError> {
         for y in 0..height {
             let start = (y as usize) * (width as usize);
             let end = start + (width as usize);
-            reader.next_row_paletted(&mut indices[start..end]).map_err(|e| {
-                ConvertError::DecodingError(format!("PCX 팔레트 행 읽기 실패 (y={}): {}", y, e))
-            })?;
+            reader
+                .next_row_paletted(&mut indices[start..end])
+                .map_err(|e| {
+                    ConvertError::DecodingError(format!("PCX 팔레트 행 읽기 실패 (y={}): {}", y, e))
+                })?;
         }
 
         // Read palette
         let mut palette = [0u8; 768];
-        let num_colors = reader.read_palette(&mut palette).map_err(|e| {
-            ConvertError::DecodingError(format!("PCX 팔레트 읽기 실패: {}", e))
-        })?;
+        let num_colors = reader
+            .read_palette(&mut palette)
+            .map_err(|e| ConvertError::DecodingError(format!("PCX 팔레트 읽기 실패: {}", e)))?;
 
         if num_colors == 0 {
-            return Err(ConvertError::DecodingError("PCX 팔레트가 비어있습니다".into()));
+            return Err(ConvertError::DecodingError(
+                "PCX 팔레트가 비어있습니다".into(),
+            ));
         }
 
         // Map palette indices to RGB
@@ -98,9 +102,9 @@ pub fn encode_pcx(img: &DynamicImage, output: &Path) -> Result<(), ConvertError>
         })?;
     }
 
-    writer.finish().map_err(|e| {
-        ConvertError::EncodingError(format!("PCX 파일 마무리 실패: {}", e))
-    })?;
+    writer
+        .finish()
+        .map_err(|e| ConvertError::EncodingError(format!("PCX 파일 마무리 실패: {}", e)))?;
 
     Ok(())
 }
@@ -108,8 +112,8 @@ pub fn encode_pcx(img: &DynamicImage, output: &Path) -> Result<(), ConvertError>
 #[cfg(test)]
 mod proptests {
     use super::*;
-    use proptest::prelude::*;
     use image::{DynamicImage, RgbImage};
+    use proptest::prelude::*;
     use tempfile::tempdir;
 
     // Property 2: PCX 라운드트립 — PCX 인코딩 후 디코딩 시 원본과 동일한 너비/높이

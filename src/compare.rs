@@ -19,10 +19,7 @@ pub struct CompareResult {
 /// 두 이미지 간 SSIM 및 PSNR 메트릭 계산
 ///
 /// 두 이미지의 크기가 동일해야 하며, 다를 경우 `CompareSizeMismatch` 에러를 반환한다.
-pub fn compare_images(
-    path_a: &Path,
-    path_b: &Path,
-) -> Result<CompareResult, ConvertError> {
+pub fn compare_images(path_a: &Path, path_b: &Path) -> Result<CompareResult, ConvertError> {
     let img_a = image::open(path_a)
         .map_err(|e| ConvertError::CompareError(format!("이미지 A 로딩 실패: {e}")))?;
     let img_b = image::open(path_b)
@@ -116,8 +113,16 @@ mod tests {
         let file_b = save_test_image(&img);
 
         let result = compare_images(file_a.path(), file_b.path()).unwrap();
-        assert!((result.ssim - 1.0).abs() < 1e-6, "SSIM should be 1.0 for identical images, got {}", result.ssim);
-        assert!(result.psnr.is_infinite(), "PSNR should be infinity for identical images, got {}", result.psnr);
+        assert!(
+            (result.ssim - 1.0).abs() < 1e-6,
+            "SSIM should be 1.0 for identical images, got {}",
+            result.ssim
+        );
+        assert!(
+            result.psnr.is_infinite(),
+            "PSNR should be infinity for identical images, got {}",
+            result.psnr
+        );
     }
 
     #[test]
@@ -143,15 +148,21 @@ mod tests {
         let img_a = DynamicImage::ImageRgb8(RgbImage::from_fn(64, 64, |_, _| {
             image::Rgb([255, 255, 255])
         }));
-        let img_b = DynamicImage::ImageRgb8(RgbImage::from_fn(64, 64, |_, _| {
-            image::Rgb([0, 0, 0])
-        }));
+        let img_b =
+            DynamicImage::ImageRgb8(RgbImage::from_fn(64, 64, |_, _| image::Rgb([0, 0, 0])));
         let file_a = save_test_image(&img_a);
         let file_b = save_test_image(&img_b);
 
         let result = compare_images(file_a.path(), file_b.path()).unwrap();
-        assert!(result.ssim < 0.5, "SSIM should be low for very different images, got {}", result.ssim);
-        assert!(result.psnr.is_finite(), "PSNR should be finite for different images");
+        assert!(
+            result.ssim < 0.5,
+            "SSIM should be low for very different images, got {}",
+            result.ssim
+        );
+        assert!(
+            result.psnr.is_finite(),
+            "PSNR should be finite for different images"
+        );
         assert!(result.psnr >= 0.0, "PSNR should be non-negative");
     }
 
@@ -167,7 +178,10 @@ mod tests {
         // MSE = (10^2 * 64*64) / (3 * 64*64) = 100/3 ≈ 33.33
         // PSNR = 10 * log10(255^2 / 33.33) ≈ 10 * log10(1950.75) ≈ 32.9 dB
         let psnr = calculate_psnr(&img_a, &img_b);
-        assert!(psnr > 30.0 && psnr < 40.0, "PSNR should be around 33 dB, got {psnr}");
+        assert!(
+            psnr > 30.0 && psnr < 40.0,
+            "PSNR should be around 33 dB, got {psnr}"
+        );
     }
 }
 
@@ -288,4 +302,3 @@ mod proptests {
         }
     }
 }
-

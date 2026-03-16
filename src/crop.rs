@@ -77,7 +77,10 @@ mod tests {
     #[test]
     fn from_str_valid() {
         let opts = CropOptions::parse("10,20,100,200").unwrap();
-        assert_eq!((opts.x, opts.y, opts.width, opts.height), (10, 20, 100, 200));
+        assert_eq!(
+            (opts.x, opts.y, opts.width, opts.height),
+            (10, 20, 100, 200)
+        );
     }
 
     #[test]
@@ -108,32 +111,57 @@ mod tests {
 
     #[test]
     fn validate_within_bounds() {
-        let opts = CropOptions { x: 0, y: 0, width: 50, height: 50 };
+        let opts = CropOptions {
+            x: 0,
+            y: 0,
+            width: 50,
+            height: 50,
+        };
         assert!(opts.validate(100, 100).is_ok());
     }
 
     #[test]
     fn validate_exact_bounds() {
-        let opts = CropOptions { x: 50, y: 50, width: 50, height: 50 };
+        let opts = CropOptions {
+            x: 50,
+            y: 50,
+            width: 50,
+            height: 50,
+        };
         assert!(opts.validate(100, 100).is_ok());
     }
 
     #[test]
     fn validate_exceeds_width() {
-        let opts = CropOptions { x: 60, y: 0, width: 50, height: 50 };
+        let opts = CropOptions {
+            x: 60,
+            y: 0,
+            width: 50,
+            height: 50,
+        };
         assert!(opts.validate(100, 100).is_err());
     }
 
     #[test]
     fn validate_exceeds_height() {
-        let opts = CropOptions { x: 0, y: 60, width: 50, height: 50 };
+        let opts = CropOptions {
+            x: 0,
+            y: 60,
+            width: 50,
+            height: 50,
+        };
         assert!(opts.validate(100, 100).is_err());
     }
 
     #[test]
     fn apply_crop_result_size() {
         let img = test_image(200, 200);
-        let opts = CropOptions { x: 10, y: 10, width: 80, height: 60 };
+        let opts = CropOptions {
+            x: 10,
+            y: 10,
+            width: 80,
+            height: 60,
+        };
         let cropped = apply_crop(&img, &opts).unwrap();
         assert_eq!(cropped.width(), 80);
         assert_eq!(cropped.height(), 60);
@@ -142,7 +170,12 @@ mod tests {
     #[test]
     fn apply_crop_out_of_bounds() {
         let img = test_image(100, 100);
-        let opts = CropOptions { x: 50, y: 50, width: 60, height: 60 };
+        let opts = CropOptions {
+            x: 50,
+            y: 50,
+            width: 60,
+            height: 60,
+        };
         assert!(apply_crop(&img, &opts).is_err());
     }
 }

@@ -50,13 +50,12 @@ fn color_type_info(ct: image::ColorType) -> (String, u8) {
 
 /// 파일 경로에서 확장자를 추출하여 ImageFormat을 감지
 fn detect_format(path: &Path) -> Result<ImageFormat, ConvertError> {
-    let ext = path
-        .extension()
-        .and_then(|e| e.to_str())
-        .ok_or_else(|| ConvertError::UnsupportedInputFormat {
+    let ext = path.extension().and_then(|e| e.to_str()).ok_or_else(|| {
+        ConvertError::UnsupportedInputFormat {
             extension: String::new(),
             supported: ImageFormat::supported_extensions().join(", "),
-        })?;
+        }
+    })?;
     ImageFormat::from_extension(ext)
 }
 

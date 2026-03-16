@@ -183,16 +183,13 @@ struct Cli {
     frame_delay: u32,
 }
 
-
 /// SVG 프리셋 문자열을 SvgPreset 열거형으로 변환
 fn parse_svg_preset(s: &str) -> Result<SvgPreset> {
     match s.to_ascii_lowercase().as_str() {
         "bw" => Ok(SvgPreset::Bw),
         "poster" => Ok(SvgPreset::Poster),
         "photo" => Ok(SvgPreset::Photo),
-        other => anyhow::bail!(
-            "알 수 없는 SVG 프리셋: '{other}'. 사용 가능: bw, poster, photo"
-        ),
+        other => anyhow::bail!("알 수 없는 SVG 프리셋: '{other}'. 사용 가능: bw, poster, photo"),
     }
 }
 
@@ -498,10 +495,7 @@ fn run_info(input: &Path) -> i32 {
         match imgconv::info::get_directory_info(input) {
             Ok(results) => {
                 if results.is_empty() {
-                    eprintln!(
-                        "디렉토리에 지원되는 이미지 파일 없음: {}",
-                        input.display()
-                    );
+                    eprintln!("디렉토리에 지원되는 이미지 파일 없음: {}", input.display());
                     return 0;
                 }
                 for (path, info) in &results {
@@ -580,7 +574,10 @@ fn main() {
     if cli.extract_frames {
         let format = cli.to.as_deref().unwrap_or("png");
         let output_dir = cli.output.clone().unwrap_or_else(|| {
-            let stem = input.file_stem().and_then(|s| s.to_str()).unwrap_or("frames");
+            let stem = input
+                .file_stem()
+                .and_then(|s| s.to_str())
+                .unwrap_or("frames");
             PathBuf::from(format!("{stem}_frames"))
         });
         let start = std::time::Instant::now();
@@ -609,18 +606,29 @@ fn main() {
             std::process::exit(2);
         }
         let output_path = cli.output.clone().unwrap_or_else(|| {
-            let stem = input.file_name().and_then(|s| s.to_str()).unwrap_or("output");
+            let stem = input
+                .file_name()
+                .and_then(|s| s.to_str())
+                .unwrap_or("output");
             PathBuf::from(format!("{stem}.gif"))
         });
         // 디렉토리에서 이미지 파일 수집 (정렬)
         let mut frame_paths: Vec<PathBuf> = std::fs::read_dir(input)
-            .unwrap_or_else(|e| { eprintln!("오류: {e}"); std::process::exit(2); })
+            .unwrap_or_else(|e| {
+                eprintln!("오류: {e}");
+                std::process::exit(2);
+            })
             .filter_map(|entry| entry.ok())
             .map(|e| e.path())
             .filter(|p| {
                 p.extension()
                     .and_then(|ext| ext.to_str())
-                    .map(|ext| matches!(ext.to_lowercase().as_str(), "png" | "jpg" | "jpeg" | "bmp" | "gif" | "tga" | "tiff" | "webp"))
+                    .map(|ext| {
+                        matches!(
+                            ext.to_lowercase().as_str(),
+                            "png" | "jpg" | "jpeg" | "bmp" | "gif" | "tga" | "tiff" | "webp"
+                        )
+                    })
                     .unwrap_or(false)
             })
             .collect();
@@ -674,5 +682,3 @@ fn main() {
         std::process::exit(exit_code);
     }
 }
-
-

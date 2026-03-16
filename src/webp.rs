@@ -30,16 +30,18 @@ pub fn decode_webp(path: &Path) -> Result<DynamicImage, ConvertError> {
     let width = info.width;
     let height = info.height;
 
-    let buf_size = decoder
-        .output_buffer_size()
-        .ok_or_else(|| ConvertError::DecodingError("WebP 출력 버퍼 크기를 결정할 수 없습니다".into()))?;
+    let buf_size = decoder.output_buffer_size().ok_or_else(|| {
+        ConvertError::DecodingError("WebP 출력 버퍼 크기를 결정할 수 없습니다".into())
+    })?;
     let mut output = vec![0u8; buf_size];
     decoder
         .read_image(&mut output)
         .map_err(|e| ConvertError::DecodingError(e.to_string()))?;
 
     let rgba_image = RgbaImage::from_raw(width, height, output).ok_or_else(|| {
-        ConvertError::DecodingError("WebP 디코딩된 픽셀 데이터로 이미지를 생성할 수 없습니다".into())
+        ConvertError::DecodingError(
+            "WebP 디코딩된 픽셀 데이터로 이미지를 생성할 수 없습니다".into(),
+        )
     })?;
 
     Ok(DynamicImage::ImageRgba8(rgba_image))
@@ -69,9 +71,15 @@ pub fn encode_webp(
         }
         WebPMode::Lossless => {
             let config = zenwebp::LosslessConfig::new();
-            zenwebp::EncodeRequest::lossless(&config, raw, zenwebp::PixelLayout::Rgba8, width, height)
-                .encode()
-                .map_err(|e| ConvertError::EncodingError(e.to_string()))?
+            zenwebp::EncodeRequest::lossless(
+                &config,
+                raw,
+                zenwebp::PixelLayout::Rgba8,
+                width,
+                height,
+            )
+            .encode()
+            .map_err(|e| ConvertError::EncodingError(e.to_string()))?
         }
     };
 
@@ -89,12 +97,7 @@ mod tests {
     fn create_test_image(w: u32, h: u32) -> DynamicImage {
         let mut img = RgbaImage::new(w, h);
         for (x, y, pixel) in img.enumerate_pixels_mut() {
-            *pixel = image::Rgba([
-                (x % 256) as u8,
-                (y % 256) as u8,
-                ((x + y) % 256) as u8,
-                255,
-            ]);
+            *pixel = image::Rgba([(x % 256) as u8, (y % 256) as u8, ((x + y) % 256) as u8, 255]);
         }
         DynamicImage::ImageRgba8(img)
     }

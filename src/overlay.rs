@@ -1,7 +1,7 @@
-use std::path::PathBuf;
-use image::{DynamicImage, RgbaImage};
 use crate::error::ConvertError;
 use crate::watermark::Position;
+use image::{DynamicImage, RgbaImage};
+use std::path::PathBuf;
 
 const MARGIN: u32 = 10;
 
@@ -32,16 +32,24 @@ fn calculate_overlay_position(
     match position {
         Position::TopLeft => (MARGIN as i64, MARGIN as i64),
         Position::TopRight => {
-            let x = base_width.saturating_sub(overlay_width).saturating_sub(MARGIN) as i64;
+            let x = base_width
+                .saturating_sub(overlay_width)
+                .saturating_sub(MARGIN) as i64;
             (x, MARGIN as i64)
         }
         Position::BottomLeft => {
-            let y = base_height.saturating_sub(overlay_height).saturating_sub(MARGIN) as i64;
+            let y = base_height
+                .saturating_sub(overlay_height)
+                .saturating_sub(MARGIN) as i64;
             (MARGIN as i64, y)
         }
         Position::BottomRight => {
-            let x = base_width.saturating_sub(overlay_width).saturating_sub(MARGIN) as i64;
-            let y = base_height.saturating_sub(overlay_height).saturating_sub(MARGIN) as i64;
+            let x = base_width
+                .saturating_sub(overlay_width)
+                .saturating_sub(MARGIN) as i64;
+            let y = base_height
+                .saturating_sub(overlay_height)
+                .saturating_sub(MARGIN) as i64;
             (x, y)
         }
         Position::Center => {
@@ -72,23 +80,16 @@ pub fn apply_overlay(
         });
     }
 
-    let overlay_img = image::open(&options.image_path).map_err(|e| {
-        ConvertError::OverlayUnsupportedFormat {
+    let overlay_img =
+        image::open(&options.image_path).map_err(|e| ConvertError::OverlayUnsupportedFormat {
             path: format!("{}: {}", options.image_path.display(), e),
-        }
-    })?;
+        })?;
 
     let overlay_rgba = apply_opacity(&overlay_img, options.opacity);
 
     let (base_w, base_h) = (img.width(), img.height());
     let (overlay_w, overlay_h) = (overlay_rgba.width(), overlay_rgba.height());
-    let (x, y) = calculate_overlay_position(
-        options.position,
-        base_w,
-        base_h,
-        overlay_w,
-        overlay_h,
-    );
+    let (x, y) = calculate_overlay_position(options.position, base_w, base_h, overlay_w, overlay_h);
 
     let mut result = img.to_rgba8();
     image::imageops::overlay(&mut result, &overlay_rgba, x, y);
@@ -126,7 +127,10 @@ mod tests {
         };
         let result = apply_overlay(&img, &options);
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), ConvertError::OverlayFileNotFound { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            ConvertError::OverlayFileNotFound { .. }
+        ));
     }
 
     #[test]
@@ -141,7 +145,10 @@ mod tests {
         };
         let result = apply_overlay(&img, &options);
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), ConvertError::OverlayUnsupportedFormat { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            ConvertError::OverlayUnsupportedFormat { .. }
+        ));
     }
     #[test]
     fn overlay_preserves_base_size() {
@@ -175,7 +182,10 @@ mod tests {
         let result = apply_overlay(&base, &options).unwrap();
         let base_bytes = base.as_bytes();
         let result_bytes = result.as_bytes();
-        let changed = base_bytes.iter().zip(result_bytes.iter()).any(|(a, b)| a != b);
+        let changed = base_bytes
+            .iter()
+            .zip(result_bytes.iter())
+            .any(|(a, b)| a != b);
         assert!(changed, "Overlay should change at least some pixels");
     }
 
@@ -194,7 +204,10 @@ mod tests {
         let result = apply_overlay(&base, &options).unwrap();
         let base_bytes = base.as_bytes();
         let result_bytes = result.as_bytes();
-        assert_eq!(base_bytes, result_bytes, "Zero opacity should not change base");
+        assert_eq!(
+            base_bytes, result_bytes,
+            "Zero opacity should not change base"
+        );
     }
     #[test]
     fn calc_pos_top_left() {

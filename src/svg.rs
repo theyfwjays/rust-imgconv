@@ -4,8 +4,8 @@ use std::path::Path;
 
 use image::DynamicImage;
 use image::RgbaImage;
-use resvg::usvg;
 use resvg::tiny_skia::{Pixmap, Transform};
+use resvg::usvg;
 
 use crate::error::ConvertError;
 
@@ -46,9 +46,8 @@ pub fn rasterize_svg(
     width: Option<u32>,
 ) -> Result<DynamicImage, ConvertError> {
     // SVG 파일 읽기
-    let svg_data = std::fs::read(path).map_err(|e| {
-        ConvertError::SvgError(format!("SVG 파일 읽기 실패: {e}"))
-    })?;
+    let svg_data = std::fs::read(path)
+        .map_err(|e| ConvertError::SvgError(format!("SVG 파일 읽기 실패: {e}")))?;
 
     // usvg 옵션 설정 (DPI 적용)
     let opt = usvg::Options {
@@ -57,9 +56,8 @@ pub fn rasterize_svg(
     };
 
     // SVG 파싱
-    let tree = usvg::Tree::from_data(&svg_data, &opt).map_err(|e| {
-        ConvertError::SvgError(format!("SVG 파싱 실패: {e}"))
-    })?;
+    let tree = usvg::Tree::from_data(&svg_data, &opt)
+        .map_err(|e| ConvertError::SvgError(format!("SVG 파싱 실패: {e}")))?;
 
     // 원본 SVG 크기
     let svg_size = tree.size();
@@ -86,9 +84,7 @@ pub fn rasterize_svg(
 
     // Pixmap 생성
     let mut pixmap = Pixmap::new(target_width, target_height).ok_or_else(|| {
-        ConvertError::SvgError(format!(
-            "Pixmap 생성 실패: {target_width}x{target_height}"
-        ))
+        ConvertError::SvgError(format!("Pixmap 생성 실패: {target_width}x{target_height}"))
     })?;
 
     // 스케일 트랜스폼 적용하여 렌더링
@@ -115,9 +111,8 @@ pub fn rasterize_svg(
         }
     }
 
-    let img = RgbaImage::from_raw(target_width, target_height, rgba_data).ok_or_else(|| {
-        ConvertError::SvgError("Pixmap → DynamicImage 변환 실패".to_string())
-    })?;
+    let img = RgbaImage::from_raw(target_width, target_height, rgba_data)
+        .ok_or_else(|| ConvertError::SvgError("Pixmap → DynamicImage 변환 실패".to_string()))?;
 
     Ok(DynamicImage::ImageRgba8(img))
 }
@@ -157,11 +152,9 @@ pub fn trace_to_svg(img: &DynamicImage, preset: SvgPreset) -> Result<String, Con
 
 /// SVG 문자열을 파일로 저장
 pub fn save_svg(svg_content: &str, path: &Path) -> Result<(), ConvertError> {
-    std::fs::write(path, svg_content).map_err(|e| {
-        ConvertError::SvgError(format!("SVG 파일 저장 실패: {e}"))
-    })
+    std::fs::write(path, svg_content)
+        .map_err(|e| ConvertError::SvgError(format!("SVG 파일 저장 실패: {e}")))
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -186,12 +179,7 @@ mod tests {
     fn create_test_image(w: u32, h: u32) -> DynamicImage {
         let mut img = RgbaImage::new(w, h);
         for (x, y, pixel) in img.enumerate_pixels_mut() {
-            *pixel = image::Rgba([
-                (x % 256) as u8,
-                (y % 256) as u8,
-                ((x + y) % 256) as u8,
-                255,
-            ]);
+            *pixel = image::Rgba([(x % 256) as u8, (y % 256) as u8, ((x + y) % 256) as u8, 255]);
         }
         DynamicImage::ImageRgba8(img)
     }

@@ -2,7 +2,7 @@
 
 use std::path::Path;
 
-use image::{DynamicImage, GrayImage, GrayAlphaImage, ImageBuffer, RgbImage, RgbaImage};
+use image::{DynamicImage, GrayAlphaImage, GrayImage, ImageBuffer, RgbImage, RgbaImage};
 use jxl_oxide::{JxlImage, PixelFormat};
 
 use crate::error::ConvertError;
@@ -35,14 +35,16 @@ pub fn decode_jxl(path: &Path) -> Result<DynamicImage, ConvertError> {
     match pixel_format {
         PixelFormat::Gray => {
             let buf: Vec<u8> = pixels.iter().map(|&v| f32_to_u8(v)).collect();
-            let img = GrayImage::from_raw(width, height, buf)
-                .ok_or_else(|| ConvertError::DecodingError("JXL 그레이스케일 이미지 생성 실패".into()))?;
+            let img = GrayImage::from_raw(width, height, buf).ok_or_else(|| {
+                ConvertError::DecodingError("JXL 그레이스케일 이미지 생성 실패".into())
+            })?;
             Ok(DynamicImage::ImageLuma8(img))
         }
         PixelFormat::Graya => {
             let buf: Vec<u8> = pixels.iter().map(|&v| f32_to_u8(v)).collect();
-            let img = GrayAlphaImage::from_raw(width, height, buf)
-                .ok_or_else(|| ConvertError::DecodingError("JXL 그레이스케일+알파 이미지 생성 실패".into()))?;
+            let img = GrayAlphaImage::from_raw(width, height, buf).ok_or_else(|| {
+                ConvertError::DecodingError("JXL 그레이스케일+알파 이미지 생성 실패".into())
+            })?;
             Ok(DynamicImage::ImageLumaA8(img))
         }
         PixelFormat::Rgb => {
@@ -82,8 +84,9 @@ pub fn decode_jxl(path: &Path) -> Result<DynamicImage, ConvertError> {
             }
 
             let img: ImageBuffer<image::Rgba<u8>, Vec<u8>> =
-                ImageBuffer::from_raw(width, height, rgba_buf)
-                    .ok_or_else(|| ConvertError::DecodingError("JXL CMYK→RGBA 이미지 생성 실패".into()))?;
+                ImageBuffer::from_raw(width, height, rgba_buf).ok_or_else(|| {
+                    ConvertError::DecodingError("JXL CMYK→RGBA 이미지 생성 실패".into())
+                })?;
             Ok(DynamicImage::ImageRgba8(img))
         }
     }

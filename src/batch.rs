@@ -105,7 +105,11 @@ pub fn convert_directory(
         cb.on_complete();
     }
 
-    Ok(BatchResult { succeeded, failed, skipped: Vec::new() })
+    Ok(BatchResult {
+        succeeded,
+        failed,
+        skipped: Vec::new(),
+    })
 }
 
 #[cfg(test)]
@@ -117,12 +121,7 @@ mod tests {
     fn create_test_png(path: &Path, w: u32, h: u32) {
         let mut img = RgbaImage::new(w, h);
         for (x, y, pixel) in img.enumerate_pixels_mut() {
-            *pixel = image::Rgba([
-                (x % 256) as u8,
-                (y % 256) as u8,
-                ((x + y) % 256) as u8,
-                255,
-            ]);
+            *pixel = image::Rgba([(x % 256) as u8, (y % 256) as u8, ((x + y) % 256) as u8, 255]);
         }
         let dyn_img = DynamicImage::ImageRgba8(img);
         dyn_img.save(path).unwrap();

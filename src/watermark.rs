@@ -100,10 +100,7 @@ fn load_font(font_path: &Option<PathBuf>) -> Result<FontArc, ConvertError> {
             ))
         })?;
         FontArc::try_from_vec(data).map_err(|_| {
-            ConvertError::WatermarkError(format!(
-                "유효하지 않은 폰트 파일: {}",
-                path.display()
-            ))
+            ConvertError::WatermarkError(format!("유효하지 않은 폰트 파일: {}", path.display()))
         })
     } else {
         // 시스템 기본 폰트 탐색
@@ -134,18 +131,26 @@ fn calculate_position(
     match position {
         Position::TopLeft => (MARGIN as i32, MARGIN as i32),
         Position::TopRight => {
-            let x = (image_width.saturating_sub(text_width).saturating_sub(MARGIN)) as i32;
+            let x = (image_width
+                .saturating_sub(text_width)
+                .saturating_sub(MARGIN)) as i32;
             let y = MARGIN as i32;
             (x, y)
         }
         Position::BottomLeft => {
             let x = MARGIN as i32;
-            let y = (image_height.saturating_sub(text_height).saturating_sub(MARGIN)) as i32;
+            let y = (image_height
+                .saturating_sub(text_height)
+                .saturating_sub(MARGIN)) as i32;
             (x, y)
         }
         Position::BottomRight => {
-            let x = (image_width.saturating_sub(text_width).saturating_sub(MARGIN)) as i32;
-            let y = (image_height.saturating_sub(text_height).saturating_sub(MARGIN)) as i32;
+            let x = (image_width
+                .saturating_sub(text_width)
+                .saturating_sub(MARGIN)) as i32;
+            let y = (image_height
+                .saturating_sub(text_height)
+                .saturating_sub(MARGIN)) as i32;
             (x, y)
         }
         Position::Center => {
@@ -180,13 +185,7 @@ pub fn apply_watermark(
     let (img_w, img_h) = (img.width(), img.height());
 
     // 위치 계산
-    let (x, y) = calculate_position(
-        options.position,
-        img_w,
-        img_h,
-        text_width,
-        text_height,
-    );
+    let (x, y) = calculate_position(options.position, img_w, img_h, text_width, text_height);
 
     // 원본 이미지를 RGBA로 변환
     let base_rgba = img.to_rgba8();
@@ -196,7 +195,15 @@ pub fn apply_watermark(
 
     // 흰색 텍스트를 텍스트 레이어에 그리기
     let text_color = Rgba([255u8, 255, 255, 255]);
-    draw_text_mut(&mut text_layer, text_color, x, y, scale, &font, &options.text);
+    draw_text_mut(
+        &mut text_layer,
+        text_color,
+        x,
+        y,
+        scale,
+        &font,
+        &options.text,
+    );
 
     // 알파 블렌딩으로 텍스트 레이어를 원본에 합성
     let mut result = base_rgba;
@@ -204,11 +211,15 @@ pub fn apply_watermark(
         let text_alpha = text_pixel[3] as f32 / 255.0 * opacity;
         if text_alpha > 0.0 {
             let inv_alpha = 1.0 - text_alpha;
-            base_pixel[0] = (text_pixel[0] as f32 * text_alpha + base_pixel[0] as f32 * inv_alpha) as u8;
-            base_pixel[1] = (text_pixel[1] as f32 * text_alpha + base_pixel[1] as f32 * inv_alpha) as u8;
-            base_pixel[2] = (text_pixel[2] as f32 * text_alpha + base_pixel[2] as f32 * inv_alpha) as u8;
+            base_pixel[0] =
+                (text_pixel[0] as f32 * text_alpha + base_pixel[0] as f32 * inv_alpha) as u8;
+            base_pixel[1] =
+                (text_pixel[1] as f32 * text_alpha + base_pixel[1] as f32 * inv_alpha) as u8;
+            base_pixel[2] =
+                (text_pixel[2] as f32 * text_alpha + base_pixel[2] as f32 * inv_alpha) as u8;
             // 알파 채널 보존
-            base_pixel[3] = ((text_alpha + base_pixel[3] as f32 / 255.0 * inv_alpha) * 255.0).min(255.0) as u8;
+            base_pixel[3] =
+                ((text_alpha + base_pixel[3] as f32 / 255.0 * inv_alpha) * 255.0).min(255.0) as u8;
         }
     }
 
@@ -237,8 +248,14 @@ mod tests {
     fn position_from_str_valid() {
         assert_eq!(Position::parse("top-left").unwrap(), Position::TopLeft);
         assert_eq!(Position::parse("top-right").unwrap(), Position::TopRight);
-        assert_eq!(Position::parse("bottom-left").unwrap(), Position::BottomLeft);
-        assert_eq!(Position::parse("bottom-right").unwrap(), Position::BottomRight);
+        assert_eq!(
+            Position::parse("bottom-left").unwrap(),
+            Position::BottomLeft
+        );
+        assert_eq!(
+            Position::parse("bottom-right").unwrap(),
+            Position::BottomRight
+        );
         assert_eq!(Position::parse("center").unwrap(), Position::Center);
         assert_eq!(Position::parse("TopLeft").unwrap(), Position::TopLeft);
     }

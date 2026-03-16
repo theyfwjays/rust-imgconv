@@ -89,9 +89,9 @@ pub fn assemble_gif(
 
     let file = File::create(output).map_err(ConvertError::IoError)?;
     let mut encoder = GifEncoder::new_with_speed(file, 10);
-    encoder.set_repeat(Repeat::Infinite).map_err(|e| {
-        ConvertError::EncodingError(format!("GIF 인코더 설정 실패: {e}"))
-    })?;
+    encoder
+        .set_repeat(Repeat::Infinite)
+        .map_err(|e| ConvertError::EncodingError(format!("GIF 인코더 설정 실패: {e}")))?;
 
     let delay = image::Delay::from_numer_denom_ms(delay_ms, 1);
 
@@ -100,9 +100,9 @@ pub fn assemble_gif(
             .map_err(|e| ConvertError::DecodingError(format!("프레임 {i} 로드 실패: {e}")))?;
         let rgba: RgbaImage = img.to_rgba8();
         let frame = Frame::from_parts(rgba, 0, 0, delay);
-        encoder.encode_frame(frame).map_err(|e| {
-            ConvertError::EncodingError(format!("프레임 {i} 인코딩 실패: {e}"))
-        })?;
+        encoder
+            .encode_frame(frame)
+            .map_err(|e| ConvertError::EncodingError(format!("프레임 {i} 인코딩 실패: {e}")))?;
     }
 
     Ok(AssembleResult {
@@ -114,7 +114,7 @@ pub fn assemble_gif(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use image::{codecs::gif::GifEncoder, Frame, RgbaImage, Delay};
+    use image::{codecs::gif::GifEncoder, Delay, Frame, RgbaImage};
     use std::io::BufWriter;
 
     /// 테스트용 애니메이션 GIF 생성 (3프레임, 각각 다른 색)
@@ -125,11 +125,11 @@ mod tests {
         encoder.set_repeat(Repeat::Infinite).unwrap();
 
         let colors: Vec<[u8; 4]> = vec![
-            [255, 0, 0, 255],     // red
-            [0, 255, 0, 255],     // green
-            [0, 0, 255, 255],     // blue
-            [255, 255, 0, 255],   // yellow
-            [255, 0, 255, 255],   // magenta
+            [255, 0, 0, 255],   // red
+            [0, 255, 0, 255],   // green
+            [0, 0, 255, 255],   // blue
+            [255, 255, 0, 255], // yellow
+            [255, 0, 255, 255], // magenta
         ];
 
         for i in 0..frame_count {
@@ -179,11 +179,7 @@ mod tests {
 
         // 프레임 이미지 3장 생성
         let mut paths = Vec::new();
-        let colors: Vec<[u8; 4]> = vec![
-            [255, 0, 0, 255],
-            [0, 255, 0, 255],
-            [0, 0, 255, 255],
-        ];
+        let colors: Vec<[u8; 4]> = vec![[255, 0, 0, 255], [0, 255, 0, 255], [0, 0, 255, 255]];
         for (i, color) in colors.iter().enumerate() {
             let path = dir.path().join(format!("frame_{i}.png"));
             let mut img = RgbaImage::new(8, 8);

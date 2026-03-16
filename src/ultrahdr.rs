@@ -11,7 +11,8 @@ use crate::error::ConvertError;
 pub fn decode_ultrahdr(path: &Path) -> Result<DynamicImage, ConvertError> {
     let _ = path;
     Err(ConvertError::DecodingError(
-        "Ultra HDR 디코딩은 아직 구현되지 않았습니다. ultrahdr-core 크레이트가 필요합니다.".to_string(),
+        "Ultra HDR 디코딩은 아직 구현되지 않았습니다. ultrahdr-core 크레이트가 필요합니다."
+            .to_string(),
     ))
 }
 
@@ -19,6 +20,7 @@ pub fn decode_ultrahdr(path: &Path) -> Result<DynamicImage, ConvertError> {
 pub fn encode_ultrahdr(img: &DynamicImage, output: &Path) -> Result<(), ConvertError> {
     let _ = (img, output);
     Err(ConvertError::EncodingError(
-        "Ultra HDR 인코딩은 아직 구현되지 않았습니다. ultrahdr-core 크레이트가 필요합니다.".to_string(),
+        "Ultra HDR 인코딩은 아직 구현되지 않았습니다. ultrahdr-core 크레이트가 필요합니다."
+            .to_string(),
     ))
 }

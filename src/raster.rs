@@ -83,12 +83,7 @@ mod tests {
         let mut img = RgbaImage::new(w, h);
         // Fill with a non-trivial pattern so encoding is meaningful
         for (x, y, pixel) in img.enumerate_pixels_mut() {
-            *pixel = image::Rgba([
-                (x % 256) as u8,
-                (y % 256) as u8,
-                ((x + y) % 256) as u8,
-                255,
-            ]);
+            *pixel = image::Rgba([(x % 256) as u8, (y % 256) as u8, ((x + y) % 256) as u8, 255]);
         }
         DynamicImage::ImageRgba8(img)
     }
