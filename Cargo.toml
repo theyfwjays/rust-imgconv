@@ -1,6 +1,6 @@
 [package]
 name = "imgconv"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "고성능 이미지 포맷 일괄 변환 CLI 도구"
 license = "MIT"
