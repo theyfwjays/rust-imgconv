@@ -1,0 +1,2 @@
+변환 완료: TestImg.jpg (jpg) → test_output/29_dedup\TestImg.png (png) [40421B → 43003B, 0.45s]
+완료: 1 파일 변환 성공 (0.45s)

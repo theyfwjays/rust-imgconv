@@ -1,0 +1,6 @@
+TestImg.jpg:
+  Format:     jpg
+  Dimensions: 1024x768
+  Color Type: Rgb8 (RGB 8-bit)
+  Bit Depth:  8
+  File Size:  40421 bytes

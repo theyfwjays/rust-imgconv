@@ -1,0 +1,4 @@
+[dry-run] TestImg.jpg (jpg) → TestImg.png (png)
+[dry-run] TestImg.jpg (jpg) → TestImg.webp (webp)
+  품질: 75
+[dry-run] TestImg.jpg (jpg) → TestImg.bmp (bmp)

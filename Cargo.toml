@@ -1,0 +1,87 @@
+[package]
+name = "imgconv"
+version = "0.1.0"
+edition = "2021"
+description = "고성능 이미지 포맷 일괄 변환 CLI 도구"
+license = "MIT"
+
+[[bin]]
+name = "imgconv"
+path = "src/main.rs"
+
+[lib]
+name = "imgconv"
+path = "src/lib.rs"
+
+[features]
+avif = ["dep:ravif", "dep:avif-parse", "dep:rav1d"]
+jxl = ["dep:jxl-oxide"]
+dds = ["image/dds"]
+pcx = ["dep:pcx"]
+ultrahdr = []
+apng = []
+compare = ["dep:image-compare"]
+dedup = ["dep:sha2"]
+
+[dependencies]
+# Raster image formats
+image = { version = "0.25", default-features = false, features = [
+    "jpeg", "png", "gif", "bmp", "tiff", "tga", "ico", "qoi",
+    "pnm", "exr", "hdr", "ff",
+] }
+
+# WebP codec (pure Rust)
+zenwebp = "0.2"
+
+# SVG rasterization
+resvg = "0.47"
+tiny-skia = "0.11"
+
+# SVG tracing (raster -> SVG)
+vtracer = "0.6"
+
+# Parallel processing
+rayon = "1"
+
+# Progress bar
+indicatif = "0.17"
+
+# CLI parsing
+clap = { version = "4", features = ["derive"] }
+
+# EXIF metadata reading
+kamadak-exif = "0.5"
+
+# Image processing (text watermark rendering)
+imageproc = "0.25"
+
+# Font rendering (TrueType font loading)
+ab_glyph = "0.2"
+
+# EXIF metadata writing/copying
+img-parts = "0.3"
+
+# Error handling
+anyhow = "1"
+thiserror = "2"
+
+# AVIF support (optional, feature-gated)
+ravif = { version = "0.13", optional = true, default-features = false, features = ["threading"] }
+avif-parse = { version = "1", optional = true }
+rav1d = { version = "1", optional = true, default-features = false, features = ["bitdepth_8", "bitdepth_16"] }
+
+# JPEG XL decoding (optional, feature-gated, read-only)
+jxl-oxide = { version = "0.11", optional = true }
+
+# Image comparison (optional, feature-gated)
+image-compare = { version = "0.4", optional = true }
+
+# SHA-256 hashing for dedup (optional, feature-gated)
+sha2 = { version = "0.10", optional = true }
+
+# PCX codec (optional, feature-gated)
+pcx = { version = "0.2", optional = true }
+
+[dev-dependencies]
+tempfile = "3"
+proptest = "1"

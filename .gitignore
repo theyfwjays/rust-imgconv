@@ -1,0 +1,28 @@
+# Build artifacts
+/target/
+
+# Test report
+test_report.txt
+
+# Test images in root (generated/temporary)
+/*.jpg
+/*.png
+/*.webp
+/*.avif
+/*.bmp
+/*.tiff
+/*.gif
+
+# But keep TestImg.jpg (synthetic test input)
+!TestImg.jpg
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cargo lock is typically committed for binaries, but uncomment if needed
+# Cargo.lock
