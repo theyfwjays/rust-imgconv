@@ -16,6 +16,9 @@ test_report.txt
 # But keep TestImg.jpg (synthetic test input)
 !TestImg.jpg
 
+# Kiro
+.kiro/
+
 # IDE
 .vscode/
 .idea/

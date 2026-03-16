@@ -1,4 +1,4 @@
-# imgconv
+# 🦀 rust-imgconv
 
 A high-performance image format batch conversion CLI tool written in pure Rust. Convert between 20+ image formats with parallel processing, resizing, cropping, filters, watermarks, EXIF handling, quality comparison, presets, and more — all from a single binary with zero C dependencies.
 
