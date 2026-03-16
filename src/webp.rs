@@ -24,14 +24,26 @@ impl Default for WebPMode {
 
 /// WebP 파일을 디코딩하여 `DynamicImage`로 반환한다.
 ///
-/// zenwebp의 `decode_rgba`를 사용하여 RGBA 픽셀 데이터로 디코딩한 후
+/// zenwebp의 `WebPDecoder`를 사용하여 RGBA 픽셀 데이터로 디코딩한 후
 /// `DynamicImage`로 변환한다.
 pub fn decode_webp(path: &Path) -> Result<DynamicImage, ConvertError> {
     let data = fs::read(path)?;
-    let (pixels, width, height) =
-        zenwebp::decode_rgba(&data).map_err(|e| ConvertError::DecodingError(e.to_string()))?;
+    let mut decoder = zenwebp::WebPDecoder::build(&data)
+        .map_err(|e| ConvertError::DecodingError(e.to_string()))?;
 
-    let rgba_image = RgbaImage::from_raw(width, height, pixels).ok_or_else(|| {
+    let info = decoder.info();
+    let width = info.width;
+    let height = info.height;
+
+    let buf_size = decoder
+        .output_buffer_size()
+        .ok_or_else(|| ConvertError::DecodingError("WebP 출력 버퍼 크기를 결정할 수 없습니다".into()))?;
+    let mut output = vec![0u8; buf_size];
+    decoder
+        .read_image(&mut output)
+        .map_err(|e| ConvertError::DecodingError(e.to_string()))?;
+
+    let rgba_image = RgbaImage::from_raw(width, height, output).ok_or_else(|| {
         ConvertError::DecodingError("WebP 디코딩된 픽셀 데이터로 이미지를 생성할 수 없습니다".into())
     })?;
 
@@ -52,20 +64,20 @@ pub fn encode_webp(
     let (width, height) = (rgba.width(), rgba.height());
     let raw = rgba.as_raw();
 
-    let encoder = zenwebp::Encoder::new_rgba(raw, width, height);
-
     let webp_data = match mode {
         WebPMode::Lossy => {
             let q = quality.unwrap_or(75) as f32;
-            encoder
-                .quality(q)
+            let config = zenwebp::LossyConfig::new().with_quality(q);
+            zenwebp::EncodeRequest::lossy(&config, raw, zenwebp::PixelLayout::Rgba8, width, height)
                 .encode()
                 .map_err(|e| ConvertError::EncodingError(e.to_string()))?
         }
-        WebPMode::Lossless => encoder
-            .lossless(true)
-            .encode()
-            .map_err(|e| ConvertError::EncodingError(e.to_string()))?,
+        WebPMode::Lossless => {
+            let config = zenwebp::LosslessConfig::new();
+            zenwebp::EncodeRequest::lossless(&config, raw, zenwebp::PixelLayout::Rgba8, width, height)
+                .encode()
+                .map_err(|e| ConvertError::EncodingError(e.to_string()))?
+        }
     };
 
     fs::write(path, &*webp_data)?;
@@ -135,13 +147,11 @@ mod tests {
         let img = create_test_image(16, 16);
         let path = temp_path("lossy_default_q.webp");
 
-        // quality=None → 기본값 75 적용
         encode_webp(&img, &path, WebPMode::Lossy, None).unwrap();
         let decoded = decode_webp(&path).unwrap();
 
         assert_eq!(decoded.width(), 16);
         assert_eq!(decoded.height(), 16);
-        // 파일이 생성되었으므로 기본 품질로 인코딩 성공
         let file_size = std::fs::metadata(&path).unwrap().len();
         assert!(file_size > 0);
 
@@ -162,7 +172,6 @@ mod tests {
         let size_low = std::fs::metadata(&path_low).unwrap().len();
         let size_high = std::fs::metadata(&path_high).unwrap().len();
 
-        // 낮은 품질의 파일이 높은 품질보다 작아야 한다
         assert!(
             size_low < size_high,
             "low quality ({size_low}) should be smaller than high quality ({size_high})"
@@ -180,9 +189,7 @@ mod tests {
         let path1 = temp_path("reencode_step1.webp");
         let path2 = temp_path("reencode_step2.webp");
 
-        // 1차: 원본 → WebP
         encode_webp(&img, &path1, WebPMode::Lossless, None).unwrap();
-        // 2차: WebP 디코딩 → 재인코딩
         let decoded = decode_webp(&path1).unwrap();
         encode_webp(&decoded, &path2, WebPMode::Lossy, Some(80)).unwrap();
 

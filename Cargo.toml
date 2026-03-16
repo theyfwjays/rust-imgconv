@@ -31,7 +31,7 @@ image = { version = "0.25", default-features = false, features = [
 ] }
 
 # WebP codec (pure Rust)
-zenwebp = "0.2"
+zenwebp = "0.3"
 
 # SVG rasterization
 resvg = "0.47"
