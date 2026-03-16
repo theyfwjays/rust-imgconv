@@ -241,7 +241,7 @@ pub fn convert_file(
     // 0. 프리셋 적용 (변환 시작 전, 개별 옵션이 프리셋을 덮어씀)
     let mut options = options.clone();
     if let Some(ref preset_name) = options.preset {
-        let p = preset::Preset::from_str(preset_name)?;
+        let p = preset::Preset::parse(preset_name)?;
         preset::apply_preset(p, &mut options);
     }
 
@@ -275,7 +275,7 @@ pub fn convert_file(
 
     // 4. 크롭 (파이프라인 순서: EXIF 방향 보정 → 크롭)
     let img = if let Some(ref crop_str) = options.crop {
-        let crop_opts = CropOptions::from_str(crop_str)?;
+        let crop_opts = CropOptions::parse(crop_str)?;
         crop::apply_crop(&img, &crop_opts)?
     } else {
         img
@@ -291,7 +291,7 @@ pub fn convert_file(
 
     // 6. 뒤집기 (파이프라인 순서: 회전 → 뒤집기)
     let img = if let Some(ref flip_str) = options.flip {
-        let direction = FlipDirection::from_str(flip_str)?;
+        let direction = FlipDirection::parse(flip_str)?;
         transform::apply_flip(&img, direction)
     } else {
         img
@@ -343,7 +343,7 @@ pub fn convert_file(
     // 10.5. 워터마크 (파이프라인 순서: 블러/샤프닝 → 워터마크)
     let img = if let Some(ref wm_text) = options.watermark {
         let position = match &options.watermark_position {
-            Some(s) => watermark::Position::from_str(s)?,
+            Some(s) => watermark::Position::parse(s)?,
             None => watermark::Position::default(),
         };
         let wm_opts = WatermarkOptions {
@@ -360,7 +360,7 @@ pub fn convert_file(
     // 10.6. 오버레이 (파이프라인 순서: 워터마크 → 오버레이)
     let img = if let Some(ref overlay_path) = options.overlay {
         let position = match &options.overlay_position {
-            Some(s) => watermark::Position::from_str(s)?,
+            Some(s) => watermark::Position::parse(s)?,
             None => watermark::Position::default(),
         };
         let ov_opts = OverlayOptions {

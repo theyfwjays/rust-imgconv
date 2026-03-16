@@ -19,7 +19,7 @@ pub struct CropOptions {
 
 impl CropOptions {
     /// "x,y,w,h" 형식의 문자열을 파싱
-    pub fn from_str(s: &str) -> Result<Self, ConvertError> {
+    pub fn parse(s: &str) -> Result<Self, ConvertError> {
         let parts: Vec<&str> = s.split(',').collect();
         if parts.len() != 4 {
             return Err(ConvertError::InvalidCropFormat {
@@ -76,34 +76,34 @@ mod tests {
 
     #[test]
     fn from_str_valid() {
-        let opts = CropOptions::from_str("10,20,100,200").unwrap();
+        let opts = CropOptions::parse("10,20,100,200").unwrap();
         assert_eq!((opts.x, opts.y, opts.width, opts.height), (10, 20, 100, 200));
     }
 
     #[test]
     fn from_str_with_spaces() {
-        let opts = CropOptions::from_str(" 5 , 10 , 50 , 60 ").unwrap();
+        let opts = CropOptions::parse(" 5 , 10 , 50 , 60 ").unwrap();
         assert_eq!((opts.x, opts.y, opts.width, opts.height), (5, 10, 50, 60));
     }
 
     #[test]
     fn from_str_too_few_parts() {
-        assert!(CropOptions::from_str("10,20,100").is_err());
+        assert!(CropOptions::parse("10,20,100").is_err());
     }
 
     #[test]
     fn from_str_too_many_parts() {
-        assert!(CropOptions::from_str("10,20,100,200,5").is_err());
+        assert!(CropOptions::parse("10,20,100,200,5").is_err());
     }
 
     #[test]
     fn from_str_non_numeric() {
-        assert!(CropOptions::from_str("a,b,c,d").is_err());
+        assert!(CropOptions::parse("a,b,c,d").is_err());
     }
 
     #[test]
     fn from_str_negative() {
-        assert!(CropOptions::from_str("-1,0,10,10").is_err());
+        assert!(CropOptions::parse("-1,0,10,10").is_err());
     }
 
     #[test]
@@ -224,7 +224,7 @@ mod proptests {
             parts_count in (0usize..=3).prop_union(5usize..=8),
         ) {
             let input: String = (0..parts_count).map(|i| i.to_string()).collect::<Vec<_>>().join(",");
-            let result = CropOptions::from_str(&input);
+            let result = CropOptions::parse(&input);
             prop_assert!(result.is_err());
             match result.unwrap_err() {
                 ConvertError::InvalidCropFormat { .. } => {}
@@ -240,7 +240,7 @@ mod proptests {
             d in "[a-z]+",
         ) {
             let input = format!("{},{},{},{}", a, b, c, d);
-            let result = CropOptions::from_str(&input);
+            let result = CropOptions::parse(&input);
             prop_assert!(result.is_err());
             match result.unwrap_err() {
                 ConvertError::InvalidCropFormat { .. } => {}

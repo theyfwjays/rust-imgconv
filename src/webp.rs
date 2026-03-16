@@ -8,18 +8,13 @@ use image::{DynamicImage, RgbaImage};
 use crate::error::ConvertError;
 
 /// WebP 인코딩 모드
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum WebPMode {
     /// Lossy 인코딩 (기본값)
+    #[default]
     Lossy,
     /// Lossless 인코딩
     Lossless,
-}
-
-impl Default for WebPMode {
-    fn default() -> Self {
-        Self::Lossy
-    }
 }
 
 /// WebP 파일을 디코딩하여 `DynamicImage`로 반환한다.

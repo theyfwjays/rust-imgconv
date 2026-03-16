@@ -9,24 +9,19 @@ use imageproc::drawing::{draw_text_mut, text_size};
 use crate::error::ConvertError;
 
 /// 워터마크 위치
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Position {
     TopLeft,
     TopRight,
     BottomLeft,
+    #[default]
     BottomRight,
     Center,
 }
 
-impl Default for Position {
-    fn default() -> Self {
-        Self::BottomRight
-    }
-}
-
 impl Position {
     /// 문자열로부터 Position 파싱
-    pub fn from_str(s: &str) -> Result<Self, ConvertError> {
+    pub fn parse(s: &str) -> Result<Self, ConvertError> {
         match s.to_lowercase().as_str() {
             "top-left" | "topleft" => Ok(Self::TopLeft),
             "top-right" | "topright" => Ok(Self::TopRight),
@@ -240,18 +235,18 @@ mod tests {
 
     #[test]
     fn position_from_str_valid() {
-        assert_eq!(Position::from_str("top-left").unwrap(), Position::TopLeft);
-        assert_eq!(Position::from_str("top-right").unwrap(), Position::TopRight);
-        assert_eq!(Position::from_str("bottom-left").unwrap(), Position::BottomLeft);
-        assert_eq!(Position::from_str("bottom-right").unwrap(), Position::BottomRight);
-        assert_eq!(Position::from_str("center").unwrap(), Position::Center);
-        assert_eq!(Position::from_str("TopLeft").unwrap(), Position::TopLeft);
+        assert_eq!(Position::parse("top-left").unwrap(), Position::TopLeft);
+        assert_eq!(Position::parse("top-right").unwrap(), Position::TopRight);
+        assert_eq!(Position::parse("bottom-left").unwrap(), Position::BottomLeft);
+        assert_eq!(Position::parse("bottom-right").unwrap(), Position::BottomRight);
+        assert_eq!(Position::parse("center").unwrap(), Position::Center);
+        assert_eq!(Position::parse("TopLeft").unwrap(), Position::TopLeft);
     }
 
     #[test]
     fn position_from_str_invalid() {
-        assert!(Position::from_str("invalid").is_err());
-        assert!(Position::from_str("").is_err());
+        assert!(Position::parse("invalid").is_err());
+        assert!(Position::parse("").is_err());
     }
 
     #[test]

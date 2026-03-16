@@ -17,7 +17,7 @@ pub enum Preset {
 
 impl Preset {
     /// 문자열로부터 프리셋 파싱
-    pub fn from_str(s: &str) -> Result<Self, ConvertError> {
+    pub fn parse(s: &str) -> Result<Self, ConvertError> {
         match s.to_lowercase().as_str() {
             "web" => Ok(Preset::Web),
             "thumbnail" => Ok(Preset::Thumbnail),
@@ -165,17 +165,17 @@ mod tests {
 
     #[test]
     fn preset_from_str_valid() {
-        assert_eq!(Preset::from_str("web").unwrap(), Preset::Web);
-        assert_eq!(Preset::from_str("Web").unwrap(), Preset::Web);
-        assert_eq!(Preset::from_str("WEB").unwrap(), Preset::Web);
-        assert_eq!(Preset::from_str("thumbnail").unwrap(), Preset::Thumbnail);
-        assert_eq!(Preset::from_str("print").unwrap(), Preset::Print);
-        assert_eq!(Preset::from_str("social").unwrap(), Preset::Social);
+        assert_eq!(Preset::parse("web").unwrap(), Preset::Web);
+        assert_eq!(Preset::parse("Web").unwrap(), Preset::Web);
+        assert_eq!(Preset::parse("WEB").unwrap(), Preset::Web);
+        assert_eq!(Preset::parse("thumbnail").unwrap(), Preset::Thumbnail);
+        assert_eq!(Preset::parse("print").unwrap(), Preset::Print);
+        assert_eq!(Preset::parse("social").unwrap(), Preset::Social);
     }
 
     #[test]
     fn preset_from_str_invalid() {
-        let err = Preset::from_str("unknown").unwrap_err();
+        let err = Preset::parse("unknown").unwrap_err();
         match err {
             ConvertError::InvalidPreset { name } => assert_eq!(name, "unknown"),
             _ => panic!("expected InvalidPreset error"),
@@ -327,7 +327,7 @@ mod tests {
                 .prop_filter("must not be a valid preset name",
                     |s| !["web", "thumbnail", "print", "social"].contains(&s.to_lowercase().as_str()))
         ) {
-            let result = Preset::from_str(&name);
+            let result = Preset::parse(&name);
             prop_assert!(result.is_err());
             match result.unwrap_err() {
                 ConvertError::InvalidPreset { name: err_name } => {

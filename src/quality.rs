@@ -25,7 +25,7 @@ pub fn default_quality(format: ImageFormat) -> Option<u8> {
 ///
 /// 유효한 값이면 그대로 반환하고, 범위를 벗어나면 `ConvertError::InvalidQuality`를 반환한다.
 pub fn validate_quality(value: u8) -> Result<u8, ConvertError> {
-    if value >= 1 && value <= 100 {
+    if (1..=100).contains(&value) {
         Ok(value)
     } else {
         Err(ConvertError::InvalidQuality { value })

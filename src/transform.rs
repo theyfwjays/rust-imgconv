@@ -33,7 +33,7 @@ pub enum FlipDirection {
 
 impl FlipDirection {
     /// 문자열로부터 뒤집기 방향을 파싱
-    pub fn from_str(s: &str) -> Result<Self, ConvertError> {
+    pub fn parse(s: &str) -> Result<Self, ConvertError> {
         match s.to_lowercase().as_str() {
             "horizontal" | "h" => Ok(Self::Horizontal),
             "vertical" | "v" => Ok(Self::Vertical),
@@ -126,17 +126,17 @@ mod tests {
 
     #[test]
     fn flip_direction_from_str_valid() {
-        assert_eq!(FlipDirection::from_str("horizontal").unwrap(), FlipDirection::Horizontal);
-        assert_eq!(FlipDirection::from_str("Horizontal").unwrap(), FlipDirection::Horizontal);
-        assert_eq!(FlipDirection::from_str("h").unwrap(), FlipDirection::Horizontal);
-        assert_eq!(FlipDirection::from_str("vertical").unwrap(), FlipDirection::Vertical);
-        assert_eq!(FlipDirection::from_str("V").unwrap(), FlipDirection::Vertical);
+        assert_eq!(FlipDirection::parse("horizontal").unwrap(), FlipDirection::Horizontal);
+        assert_eq!(FlipDirection::parse("Horizontal").unwrap(), FlipDirection::Horizontal);
+        assert_eq!(FlipDirection::parse("h").unwrap(), FlipDirection::Horizontal);
+        assert_eq!(FlipDirection::parse("vertical").unwrap(), FlipDirection::Vertical);
+        assert_eq!(FlipDirection::parse("V").unwrap(), FlipDirection::Vertical);
     }
 
     #[test]
     fn flip_direction_from_str_invalid() {
-        assert!(FlipDirection::from_str("diagonal").is_err());
-        assert!(FlipDirection::from_str("").is_err());
+        assert!(FlipDirection::parse("diagonal").is_err());
+        assert!(FlipDirection::parse("").is_err());
     }
 }
 
@@ -241,7 +241,7 @@ mod proptests {
                 lower != "horizontal" && lower != "h" && lower != "vertical" && lower != "v"
             }),
         ) {
-            let result = FlipDirection::from_str(&direction);
+            let result = FlipDirection::parse(&direction);
             prop_assert!(result.is_err(), "Direction '{}' should be rejected", direction);
             match result.unwrap_err() {
                 ConvertError::InvalidFlipDirection { .. } => {}
